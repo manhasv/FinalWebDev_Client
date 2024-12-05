@@ -60,8 +60,10 @@ export default function Quizzes() {
             </div>
           </div>
           <ul className="wd-quizzes-list list-group rounded-0">
-            {filteredQuizzes.map((quiz: any) => (
-              <QuizItem key={quiz._id} quiz={quiz} isFaculty={isFaculty} />
+
+            {filteredQuizzes.filter((quiz: any) => quiz.publish || isFaculty)
+            .map((quiz: any) => (
+              <QuizItem key={quiz._id} quiz={quiz} isFaculty={isFaculty}/>
             ))}
           </ul>
         </li>

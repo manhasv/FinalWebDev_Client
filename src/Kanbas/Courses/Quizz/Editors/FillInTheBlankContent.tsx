@@ -12,7 +12,7 @@ export default function FillInTheBlankContent({
   const addChoice = () => {
     setContent({
       ...content,
-      answer: [...content.blanks, `Answer${content.blanks.length + 1}`],
+      answer: [...content.answer, `Answer${content.blanks.length + 1}`],
       blanks: [...content.blanks, `Prompt${content.blanks.length + 1}`],
     });
   };

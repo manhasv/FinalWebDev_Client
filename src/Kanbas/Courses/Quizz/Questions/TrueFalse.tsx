@@ -14,6 +14,11 @@ export default function TrueFalse({
 }) {
   const { attempt } = useSelector((state: any) => state.attemptReducer);
   const dispatch = useDispatch();
+
+  if (!attempt) {
+    return <></>;
+  }
+
   return (
     <div>
       {question.content.text}

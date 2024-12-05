@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
-import { updateQuiz } from "../reducer";
+import { setQuiz, updateQuiz } from "../reducer";
 import Question from "../Questions/Question";
 import MultipleChoiceContent from "./MultipleChoiceContent";
 import TrueFalseContent from "./TrueFalseContent";
@@ -15,6 +15,8 @@ import {
   FillInTheBlankQuestionContent 
 } from "./QuizQuestionTypes";
 import FillInTheBlankContent from "./FillInTheBlankContent";
+import { setAttempt } from "../Attempt/your_attempt_reducer";
+import * as coursesClient from "../../client";
 
 export default function QuizQuestionsEditor() {
   const { cid, qid } = useParams();
@@ -53,6 +55,17 @@ export default function QuizQuestionsEditor() {
     const totalPoints = questions.reduce((sum, q) => sum + q.content.point, 0);
     setPoints(totalPoints);
   }, [questions]);
+
+  useEffect(() => {
+    dispatch(setAttempt({
+      start: 0,
+      submitted: true,
+      submittedAt: 0,
+      grade: 0,
+      score: 0,
+      answers: quiz?.questions.map((_:any) => null) || []
+    }))
+  }, []);
 
   const handleAddQuestion = () => {
     setShowTypeModal(true);
@@ -114,6 +127,16 @@ export default function QuizQuestionsEditor() {
     setQuestions(quiz?.questions || []);
     navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Edit`);
   };
+
+  const fetchQuiz = async () => {
+    const quiz = await coursesClient.findQuizForCourse(cid as string);
+    // alert(`did fetch quiz ${JSON.stringify(quiz)}`);
+    dispatch(setQuiz(quiz));
+    setQuestions(quiz.find((q:any) => q._id == qid)?.questions || []);
+  };
+  useEffect(() => {
+    fetchQuiz();
+  }, []);
 
   return (
     <div className="container mt-4">

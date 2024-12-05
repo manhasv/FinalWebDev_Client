@@ -1,10 +1,10 @@
-import { BsGripVertical, BsCheck2Circle, BsThreeDotsVertical } from "react-icons/bs";
+import { BsGripVertical, BsCheck2Circle, BsThreeDotsVertical, BsXCircle } from "react-icons/bs";
 import { FaRegEdit } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import ReactDOM from "react-dom";
 import { useState } from "react";
-import { deleteQuiz } from "./reducer";
+import { deleteQuiz, unPublishQuiz, publishQuiz } from "./reducer";
 import * as quizClient from "./client";
 
 interface QuizItemProps {
@@ -19,7 +19,7 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
 
   const [showMenu, setShowMenu] = useState(false);
-  const [isPublished, setIsPublished] = useState(false);
+  const [isPublished, setIsPublished] = useState(quiz.publish);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
   const toggleMenu = (event: React.MouseEvent) => {
@@ -37,8 +37,14 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
     dispatch(deleteQuiz(quiz._id));
   };
 
-  const handlePublishToggle = () => {
+  const handlePublishToggle = async () => {
     setIsPublished(!isPublished);
+    await quizClient.updateQuizz({ ...quiz, publish: !isPublished });
+    if (!isPublished) {
+      dispatch(publishQuiz(quiz._id));
+    } else {
+      dispatch(unPublishQuiz(quiz._id));
+    }
   };
 
   const handleCopy = () => {
@@ -55,7 +61,7 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
   return (
     <li className="wd-quiz-item list-group-item p-3 ps-1 d-flex align-items-center">
       <BsGripVertical className="me-2 fs-3" />
-      {isFaculty && <FaRegEdit className="me-4 text-success fs-5" />}
+      <FaRegEdit className="me-4 text-success fs-5" />
       <div className="flex-grow-1">
         <a
           className="fw-bold text-dark text-decoration-none"
@@ -87,13 +93,17 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
 
       {/* Checkmark and Settings Icons */}
       <div className="d-flex align-items-center position-relative">
-        <BsCheck2Circle className="text-success fs-4 me-3" title="Completed" />
-        <BsThreeDotsVertical
+        {isPublished ? (
+          <BsCheck2Circle className="text-success fs-4 me-3" title="Completed" />
+        ) : (
+          <BsXCircle className="text-danger fs-4 me-3" title="Not Completed" />
+        )}
+        {isFaculty && <BsThreeDotsVertical
           className="fs-5"
           title="Settings"
           onClick={toggleMenu}
           style={{ cursor: "pointer" }}
-        />
+        />}
       </div>
 
       {showMenu && (

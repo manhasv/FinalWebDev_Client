@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { addQuiz, updateQuiz } from "../reducer";
+import { addQuiz, setQuiz, updateQuiz } from "../reducer";
 import { Link } from "react-router-dom";
 import * as coursesClient from "../../client";
 import * as quizzClient from "../client";
@@ -26,7 +26,7 @@ export default function QuizEditor() {
     assignmentGroup: "Quizzes",
   };
 
-  const [quiz, setQuiz] = useState(quizData);
+  const [quiz, setLocalQuiz] = useState(quizData);
 
   const handleSave = async () => {
     alert(`saving quiz ${JSON.stringify(quiz)}`);
@@ -41,8 +41,29 @@ export default function QuizEditor() {
   };
 
   const handleChange = (field: string, value: string | number | boolean) => {
-    setQuiz({ ...quiz, [field]: value });
+    setLocalQuiz({ ...quiz, [field]: value });
   };
+
+  const fetchQuiz = async () => {
+    const quiz = await coursesClient.findQuizForCourse(cid as string);
+    dispatch(setQuiz(quiz));
+    setLocalQuiz(quiz.find((q: any) => q._id === qid) || {
+      title: "",
+      description: "",
+      points: 0,
+      availableDate: "",
+      dueDate: "",
+      untilDate: "",
+      type: "Graded Quiz",
+      multipleAttempts: false,
+      shuffleAnswers: false,
+      timeLimit: 20,
+      assignmentGroup: "Quizzes",
+    });
+  };
+  useEffect(() => {
+    fetchQuiz();
+  }, []);
 
   return (
     <div id="quiz-editor" className="container mt-4">

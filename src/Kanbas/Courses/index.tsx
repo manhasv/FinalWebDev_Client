@@ -1,4 +1,4 @@
-// import { courses } from "../Database";
+
 import CoursesNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
@@ -15,10 +15,14 @@ import QuizQuestionsEditor from "./Quizz/Editors/QuizQuestionsEditor";
 import { useEffect, useState } from "react";
 import * as client from "./client";
 
-export default function Courses() {
+export default function Courses({
+  courses,
+}: {
+  courses: any[];
+}) {
   const { pathname } = useLocation();
   const { cid } = useParams();
-  const course = { name: "COURSE NAME NOT BEING SOURCED FROM SERVER"}; // courses.find((course) => course._id === cid);
+  const course = courses.find((course:any) => course._id === cid);
   
   const [users, setUsers] = useState<any[]>([]);
 

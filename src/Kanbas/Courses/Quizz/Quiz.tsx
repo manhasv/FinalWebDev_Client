@@ -38,10 +38,6 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
     }
   };
 
-  // useEffect(() => {
-  //   fetchAttempt();
-  // }, [qid, currentUser._id]);
-
   const handleAnswerChange = async (questionIndex: any, answer: any) => {
     try {
       const updatedAnswers = [...attempt.answers];

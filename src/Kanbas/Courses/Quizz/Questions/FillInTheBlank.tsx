@@ -15,13 +15,13 @@ export default function FillInTheBlank({
   isDisabled: boolean;
 }) {
   const { attempt } = useSelector((state: any) => state.attemptReducer);
+
   const dispatch = useDispatch();
 
   const [theseAnswers, setTheseAnswers] = useState<string[]>(
-    attempt.answers[questionIndex] ? [ ...attempt.answers[questionIndex] ] : question.content.blanks.map((_:any) => "")
+    attempt?.answers && attempt.answers[questionIndex] ? [ ...attempt.answers[questionIndex] ] : question.content.blanks.map((_:any) => "")
   );
   
-
   const updateBlank = (st: string, ind: number) => {
     let newAnswers = [...theseAnswers];
     newAnswers[ind] = st;
@@ -37,6 +37,10 @@ export default function FillInTheBlank({
     }
   };
 
+  if (!attempt) {
+    return <></>;
+  }
+
   return (
     <div>
       {question.content.text}
@@ -48,7 +52,7 @@ export default function FillInTheBlank({
               {textForBlank}
               <input
                 defaultValue={
-                  attempt.answers[questionIndex] ? attempt.answers[questionIndex][index] : ""
+                  attempt?.answers[questionIndex] ? attempt.answers[questionIndex][index] : ""
                 }
                 onChange={(e) => {
                   updateBlank(e.target.value, index);

@@ -39,3 +39,12 @@ export const getAllAttempts = async (quizId: string, userId: string) => {
     const response = await axios.get(`${QUIZZ_API}/${quizId}/attempts/${userId}`);
     return response.data;
 };
+
+export const publishQuiz = async (quizId: string) => {
+    const response = await axios.post(`${QUIZZ_API}/${quizId}/publish`);
+    return response.data;
+};
+export const unpublishQuiz = async (quizId: string) => {
+    const response = await axios.post(`${QUIZZ_API}/${quizId}/unpublish`);
+    return response.data;
+}
