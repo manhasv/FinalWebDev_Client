@@ -51,8 +51,8 @@ export default function QuizDetails() {
     navigate(`/Kanbas/Courses/${quiz.course}/Quizzes/${quiz._id}/Take${quiz.oneQuestionAtATime ? "/1" : ""}`);
   };
 
-  const handlePreview = async () => {
-    if (!attemptActive) {
+  const handlePreview = async (startNew: boolean = false) => {
+    if (!attemptActive || startNew) {
       await startAttempt();
     }
     navigate(`/Kanbas/Courses/${quiz.course}/Quizzes/${quiz._id}/Preview`);
@@ -101,9 +101,18 @@ export default function QuizDetails() {
         )}
         {isFaculty && (
           <>
-            <button className="btn btn-primary me-2" onClick={handlePreview}>
-              Preview
+            <button className="btn btn-primary me-2" onClick={(e) => {
+                handlePreview(false); // start new attempt
+              }}>
+              {attempt && attempt.submitted ? "View Last Preview Attempt" : "Preview"}
             </button>
+            {attempt && attempt.submitted && (
+              <button className="btn btn-primary me-2" onClick={
+                (e) => {
+                  handlePreview(true); // start new attempt
+                }
+              }>Start New Preview Attempt</button>
+            )}
             <button className="btn btn-secondary" onClick={handleEdit}>
               Edit
             </button>

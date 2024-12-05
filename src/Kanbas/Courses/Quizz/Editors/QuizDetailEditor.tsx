@@ -46,6 +46,7 @@ export default function QuizEditor() {
 
   const fetchQuiz = async () => {
     const quiz = await coursesClient.findQuizForCourse(cid as string);
+    alert('populating reducer')
     dispatch(setQuiz(quiz));
     setLocalQuiz(quiz.find((q: any) => q._id === qid) || {
       title: "",
@@ -62,8 +63,10 @@ export default function QuizEditor() {
     });
   };
   useEffect(() => {
-    fetchQuiz();
-  }, []);
+    if (quizzes.length === 0) {
+      fetchQuiz();
+    }
+  }, [qid]);
 
   return (
     <div id="quiz-editor" className="container mt-4">

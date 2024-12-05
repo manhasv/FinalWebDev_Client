@@ -11,7 +11,7 @@ export default function Time({ elapsedS }: { elapsedS: number }) {
   }
   return (
     <div>
-      elapsed time from start:{" "}
+      Time taken from start:{" "}
       {hours > 0 ? `${hours}:` : ""}
       {padTime(minutes)}:
       {padTime(seconds)}

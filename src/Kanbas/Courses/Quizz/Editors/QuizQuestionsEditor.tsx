@@ -7,12 +7,12 @@ import { setQuiz, updateQuiz } from "../reducer";
 import Question from "../Questions/Question";
 import MultipleChoiceContent from "./MultipleChoiceContent";
 import TrueFalseContent from "./TrueFalseContent";
-import { 
-  QuizQuestion, 
-  QuizQuestionContent, 
-  TrueFalseQuestionContent, 
-  MultipleChoiceQuestionContent, 
-  FillInTheBlankQuestionContent 
+import {
+  QuizQuestion,
+  QuizQuestionContent,
+  TrueFalseQuestionContent,
+  MultipleChoiceQuestionContent,
+  FillInTheBlankQuestionContent
 } from "./QuizQuestionTypes";
 import FillInTheBlankContent from "./FillInTheBlankContent";
 import { setAttempt } from "../Attempt/your_attempt_reducer";
@@ -23,6 +23,9 @@ export default function QuizQuestionsEditor() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const quizzes = useSelector((state: any) =>
+    state.quizzesReducer.quizzes
+  );
   const quiz = useSelector((state: any) =>
     state.quizzesReducer.quizzes.find((q: any) => q._id === qid)
   );
@@ -63,12 +66,33 @@ export default function QuizQuestionsEditor() {
       submittedAt: 0,
       grade: 0,
       score: 0,
-      answers: quiz?.questions.map((_:any) => null) || []
+      answers: quiz?.questions.map((_: any) => null) || []
     }))
   }, []);
 
   const handleAddQuestion = () => {
     setShowTypeModal(true);
+  };
+
+  const handleUpdate = (question: QuizQuestion) => {
+    // Update local state with selected question content
+    setSelectedType(question.type);
+    if (question.type === "TRUEFALSE") {
+      setTfContent(question.content);
+    } else if (question.type === "MULTIPLECHOICE") {
+      setMcContent(question.content);
+    } else {
+      setFitbContent(question.content);
+    }
+
+    // Update local state with selected question point
+    setQuestionPoint(question.content.point);
+
+    setShowConfigModal(true);
+  }
+
+  const handleDelete = (question: QuizQuestion) => {
+    setQuestions(questions.filter((q) => q._id !== question._id));
   };
 
   const handleTypeSelect = (type: string) => {
@@ -129,14 +153,16 @@ export default function QuizQuestionsEditor() {
   };
 
   const fetchQuiz = async () => {
-    const quiz = await coursesClient.findQuizForCourse(cid as string);
-    // alert(`did fetch quiz ${JSON.stringify(quiz)}`);
-    dispatch(setQuiz(quiz));
-    setQuestions(quiz.find((q:any) => q._id == qid)?.questions || []);
+    const newquiz = await coursesClient.findQuizForCourse(cid as string);
+    alert(`populating reducer ${JSON.stringify(quiz)}`);
+    dispatch(setQuiz(newquiz));
+    setQuestions(newquiz.find((q: any) => q._id == qid)?.questions || []);
   };
   useEffect(() => {
-    fetchQuiz();
-  }, []);
+    if (quizzes.length === 0) {
+      fetchQuiz();
+    }
+  }, [qid]);
 
   return (
     <div className="container mt-4">
@@ -165,9 +191,16 @@ export default function QuizQuestionsEditor() {
           <div>
             {questions.map((q: any, n: number) => {
               return (
-                <div>
-                  {" "}
-                  <Question question={q} questionNumber={n + 1} point={q.content.point} isDisabled={true} />
+                <div key={n}>
+                  <Question
+                    question={q}
+                    questionNumber={n + 1}
+                    point={q.content.point}
+                    isDisabled={true}
+                  />
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <button className="btn btn-danger" onClick={() => handleDelete(q)}>Delete Question {n + 1}</button>
+                  </div>
                   <br />
                   <br />
                 </div>
@@ -200,16 +233,16 @@ export default function QuizQuestionsEditor() {
           <Modal.Title>Select Question Type</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <label>pts:
-        <input 
-        type="number"
-        min={0}
-        value={questionPoint}
-        onChange={(e) => setQuestionPoint(parseInt(e.target.value))}
-        />
-        </label>
-        <br></br>
-        <br></br>
+          <label>pts:
+            <input
+              type="number"
+              min={0}
+              value={questionPoint}
+              onChange={(e) => setQuestionPoint(parseInt(e.target.value))}
+            />
+          </label>
+          <br></br>
+          <br></br>
           <p>Choose a Question type:</p>
           <select className="form-control" onChange={(e) => setSelectedType(e.target.value)} defaultValue="">
             <option value="" disabled>Select type</option>
@@ -232,15 +265,15 @@ export default function QuizQuestionsEditor() {
       <Modal show={showConfigModal} onHide={() => setShowConfigModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Configure {{
-            MULTIPLECHOICE: "Multiple Choice", 
-            TRUEFALSE: "True/False", 
+            MULTIPLECHOICE: "Multiple Choice",
+            TRUEFALSE: "True/False",
             FILLINTHEBLANK: "Fill in the Blank"
-            }[selectedType || ""]} Question</Modal.Title>
+          }[selectedType || ""]} Question</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {/* Content for each QuizQuestion type */}
           {selectedType === "MULTIPLECHOICE" && <MultipleChoiceContent content={mcContent} setContent={setMcContent} />}
-          {selectedType === "TRUEFALSE" && <TrueFalseContent content={tfContent} setContent={setTfContent}/>}
+          {selectedType === "TRUEFALSE" && <TrueFalseContent content={tfContent} setContent={setTfContent} />}
           {selectedType === "FILLINTHEBLANK" && <FillInTheBlankContent content={fitbContent} setContent={setFitbContent} />}
         </Modal.Body>
         <Modal.Footer>

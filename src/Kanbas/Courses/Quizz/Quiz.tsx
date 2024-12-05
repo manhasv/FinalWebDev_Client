@@ -73,13 +73,16 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
       <br />
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>{thisQuiz.title}</h2>
-        {attempt.submitted ? (
-          <Time
-            elapsedS={Math.floor((attempt.submittedAt - attempt.start) / 1000)}
-          />
-        ) : (
-          <Timer startTime={attempt.start} />
-        )}
+        <div>
+          <div>Started at {new Date(attempt.start).toString().split("G")[0]}</div>
+          {attempt.submitted ? (
+            <Time
+              elapsedS={Math.floor((attempt.submittedAt - attempt.start) / 1000)}
+            />
+          ) : (
+            <Timer startTime={attempt.start} />
+          )}
+        </div>
       </div>
 
       <ul className="list-group">
