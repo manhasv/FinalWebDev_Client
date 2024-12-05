@@ -51,7 +51,7 @@ export default function FillInTheBlank({
             <label>
               {textForBlank}
               <input
-                defaultValue={
+                value={
                   attempt?.answers[questionIndex] ? attempt.answers[questionIndex][index] : ""
                 }
                 onChange={(e) => {

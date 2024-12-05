@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { setAttempt } from "./Attempt/your_attempt_reducer";
 import * as client from "./client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function QuizDetails() {
   const { qid } = useParams();
@@ -16,6 +16,8 @@ export default function QuizDetails() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const isFaculty = currentUser.role === "FACULTY";
   const isStudent = currentUser.role === "STUDENT";
+
+  const [attemptsSoFar, setAttemptsSoFar] = useState(-1);
 
   const dispatch = useDispatch();
   const fetchAttempt = async () => {
@@ -76,6 +78,14 @@ export default function QuizDetails() {
     return "Start Quiz";
   };
 
+  const fetchNumAttempts = async () => {
+    setAttemptsSoFar((await client.getAllAttempts(qid || "", currentUser._id)).length);
+  }
+
+  useEffect(() => {
+    fetchNumAttempts();
+  }, [])
+
   return (
     <div className="container mt-4 text-center">
       {attempt == undefined && "UNDEFINED HEY"}
@@ -84,7 +94,8 @@ export default function QuizDetails() {
       <div className="d-flex justify-content-center mb-2">
         {isStudent && (
           <>
-            {attempt && attempt.submitted && quiz.multipleAttempts && (
+            {quiz.multipleAttempts && attemptsSoFar >= 0 && <span className="px-2">{`${attemptsSoFar} attempts so far`}</span>}
+            {attempt && attempt.submitted && quiz.multipleAttempts && attemptsSoFar < quiz.allowedAttempts && (
               <button className="btn btn-danger me-2" onClick={(e) => {
                 handleTakeQuiz(true); // start new attempt
               }}>Start New Attempt</button>
@@ -175,7 +186,7 @@ export default function QuizDetails() {
             <div className="col-4 text-end">
               <strong>How Many Attempts:</strong>
             </div>
-            <div className="col-8 text-start">{quiz.attempts || 1}</div>
+            <div className="col-8 text-start">{quiz.allowedAttempts}</div>
           </div>
         )}
         <div className="row mb-3">

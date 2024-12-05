@@ -6,6 +6,7 @@ import Timer from "./Timer";
 import { useEffect, useState } from "react";
 import * as client from "./client";
 import Time from "./Time";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 export default function Quiz({ isPreview }: { isPreview: boolean }) {
   const [showSubmitDialog, setShowSubmitDialog] = useState(false);
@@ -67,6 +68,10 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
     }
   };
 
+  const isAnswerCorrect = (question: any, userAnswer: any) => {
+    return userAnswer === question.content.answer;
+  };
+
   return (
     <div id="wd-quiz">
       {JSON.stringify(attempt)}
@@ -86,17 +91,52 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
       </div>
 
       <ul className="list-group">
-        {(thisQuiz.oneQuestionPerPage ? [thisQuiz.questions[questionNum - 1]] : thisQuiz.questions).map((q: any, index: any) => (
-          <li key={index} className="list-group-item">
-            <Question
-              question={q}
-              questionNumber={thisQuiz.oneQuestionPerPage ? questionNum : index + 1}
-              point={q.content.point}
-              isDisabled={attempt.submitted}
-              handleAnswerChange={handleAnswerChange}
-            />
-          </li>
-        ))}
+        {(thisQuiz.oneQuestionPerPage
+          ? [thisQuiz.questions[questionNum - 1]]
+          : thisQuiz.questions
+        ).map((q: any, index: any) => {
+          // Some const to calculate stuff
+          const actualIndex = thisQuiz.oneQuestionPerPage
+            ? questionNum - 1
+            : index;
+          const userAnswer = attempt.answers[actualIndex];
+          const correct =
+            isPreview || attempt.submitted
+              ? isAnswerCorrect(q, userAnswer)
+              : null;
+
+          return (
+            <li key={index} className="list-group-item">
+              <div className="d-flex justify-content-between align-items-start w-100">
+                <div className="flex-grow-1">
+                  <Question
+                    question={q}
+                    questionNumber={
+                      thisQuiz.oneQuestionPerPage ? questionNum : index + 1
+                    }
+                    point={q.content.point}
+                    isDisabled={attempt.submitted}
+                    handleAnswerChange={handleAnswerChange}
+                  />
+                </div>
+                
+                
+                {(isPreview || attempt.submitted) && (
+                  <span
+                    className={`ms-3 ${
+                      correct ? "text-success" : "text-danger"
+                    }`}
+                    title={correct ? "Correct Answer" : "Incorrect Answer"}
+                    aria-label={correct ? "Correct Answer" : "Incorrect Answer"}
+                    style={{ fontSize: "1.5rem" }}
+                  >
+                    {correct ? <FaCheckCircle /> : <FaTimesCircle />}
+                  </span>
+                )}
+              </div>
+            </li>
+          );
+        })}
       </ul>
 
       {thisQuiz.oneQuestionPerPage && (
@@ -142,7 +182,7 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
         >
           <div className="modal-dialog" role="document">
             <div className="modal-content">
-              {/* Modal content as before */}
+              
               <div className="modal-header">
                 <h5 className="modal-title">Submit Quiz</h5>
                 <button

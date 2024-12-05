@@ -23,12 +23,14 @@ export default function TrueFalse({
     <div>
       {question.content.text}
       <br />
+      {/* {JSON.stringify(attempt.answers[questionIndex])}
+      <br /> */}
       <label>
         <input
           name={`TF#${questionIndex}`}
           type="radio"
           value="true"
-          defaultChecked={
+          checked={
             attempt.answers[questionIndex] === true
           }
           onChange={(e) => {
@@ -50,7 +52,7 @@ export default function TrueFalse({
           name={`TF#${questionIndex}`}
           type="radio"
           value="false"
-          defaultChecked={
+          checked={
             attempt.answers[questionIndex] === false
           }
           onChange={(e) => {

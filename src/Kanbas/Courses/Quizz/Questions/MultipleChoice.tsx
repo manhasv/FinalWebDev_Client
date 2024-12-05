@@ -18,7 +18,7 @@ export default function MultipleChoice({
   if (!attempt) {
     return <></>;
   }
-  
+
   return (
     <div>
       {question.content.text}
@@ -31,7 +31,7 @@ export default function MultipleChoice({
                 name={`MC#${questionIndex}`}
                 type="radio"
                 value={choice}
-                defaultChecked={choice === attempt.answers[questionIndex]}
+                checked={choice === attempt.answers[questionIndex]}
                 onChange={(e) => {
                   if (e.target.checked) {
                     dispatch(setAnswer({ questionIndex, answer: choice }));
