@@ -58,10 +58,10 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
 
   const handleSubmit = async () => {
     try {
-      await client.submitAttempt(qid || "", currentUser._id);
+      const submittedAtt = await client.submitAttempt(qid || "", currentUser._id);
+      dispatch(setAttempt(submittedAtt));
       setShowSubmitDialog(false);
       // // Fetch the latest attempt to get updated data
-      await fetchAttempt();
       // console.log('attempt after fetch after submit', attempt);
     } catch (error) {
       console.error("Failed to submit attempt:", error);
@@ -69,6 +69,12 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
   };
 
   const isAnswerCorrect = (question: any, userAnswer: any) => {
+    if (userAnswer === null || userAnswer === undefined) {
+      return false;
+    }
+    if (question.type === "FILLINTHEBLANK") {
+      return userAnswer.every((ans:string, idx:number) => question.content.answer[idx].map((st:string) => st.toLowerCase()).includes(ans.toLowerCase()));
+    }
     return userAnswer === question.content.answer;
   };
 
@@ -121,7 +127,7 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
                 </div>
                 
                 
-                {(isPreview || attempt.submitted) && (
+                {((!isPreview && currentUser.role !== "STUDENT") || attempt.submitted) && (
                   <span
                     className={`ms-3 ${
                       correct ? "text-success" : "text-danger"

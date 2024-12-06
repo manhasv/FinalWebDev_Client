@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FillInTheBlankQuestionContent } from "./QuizQuestionTypes";
 import { Button } from "react-bootstrap";
+import { FaTrash } from "react-icons/fa";
 
 export default function FillInTheBlankContent({
   content,
@@ -12,7 +13,7 @@ export default function FillInTheBlankContent({
   const addChoice = () => {
     setContent({
       ...content,
-      answer: [...content.answer, `Answer${content.blanks.length + 1}`],
+      answer: [...content.answer, [`Answer${content.blanks.length + 1}`]],
       blanks: [...content.blanks, `Prompt${content.blanks.length + 1}`],
     });
   };
@@ -25,14 +26,50 @@ export default function FillInTheBlankContent({
       ),
     });
   };
-  const setAnswer = (index: number, ans: string) => {
+
+  const setAnswerOption = (index: number, subindex: number, ans: string) => {
+    const newOptions = [...content.answer[index]];
+    newOptions[subindex] = ans;
+    const newAnswer = [...content.answer];
+    newAnswer[index] = newOptions;
     setContent({
       ...content,
-      answer: content.answer.map((oldValue, i) =>
-        i === index ? ans : oldValue
-      ),
+      answer: newAnswer,
     });
   };
+
+  const addOption = (index: number) => {
+    const newOption = [...content.answer[index], "option"];
+    const newAnswer = [...content.answer];
+    newAnswer[index] = newOption;
+    setContent({
+      ...content,
+      answer: newAnswer,
+    });
+  };
+
+  const removeOption = (index: number, subindex: number) => {
+    const newOption = [...content.answer[index]];
+    if (newOption.length <= 1) {
+      const newAnswer = [...content.answer];
+      const newBlanks = [...content.blanks];
+      newAnswer.splice(index, 1);
+      newBlanks.splice(index, 1);
+      setContent({
+        ...content,
+        answer: newAnswer,
+        blanks: newBlanks
+      })
+      return;
+    }
+    newOption.splice(subindex, 1);
+    const newAnswer = [...content.answer];
+    newAnswer[index] = newOption;
+    setContent({
+      ...content,
+      answer: newAnswer
+    })
+  }
 
   const questionTextHandler = (e: any) => {
     setContent({
@@ -51,28 +88,47 @@ export default function FillInTheBlankContent({
       />
       <br></br>
       {content.blanks.map((prompt, index) => (
-        <div className="d-flex">
-          <input
-            className="form-control"
-            value={prompt}
-            onChange={(e) => {
-              setPrompt(index, e.target.value);
+        <div className="d-flex pb-1">
+          <div>
+            {content.answer[index].map((option: string, subindex: number) => {
+              return (
+                <div className="d-flex">
+                  {subindex === 0 ? <input
+                    className="form-control"
+                    value={prompt}
+                    onChange={(e) => {
+                      setPrompt(index, e.target.value);
+                    }}
+                    placeholder={`Prompt${index + 1}`}
+                  /> : <div className="w-100"></div>}
+                  <input
+                    className="form-control"
+                    value={content.answer[index][subindex]}
+                    onChange={(e) => {
+                      setAnswerOption(index, subindex, e.target.value);
+                    }}
+                    placeholder={`Answer${index + 1}`}
+                  />
+                  <FaTrash className="fs-3 wd-clickable m-2" onClick={() => {
+                    removeOption(index, subindex);
+                  }}></FaTrash>
+                </div>
+              );
+            })}
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              addOption(index);
             }}
-            placeholder={`Prompt${index + 1}`}
-          />
-          <input
-            className="form-control"
-            value={content.answer[index]}
-            onChange={(e) => {
-              setAnswer(index, e.target.value);
-            }}
-            placeholder={`Answer${index + 1}`}
-          />
+          >
+            +
+          </button>
         </div>
       ))}
       <br></br>
       <Button variant="primary" onClick={addChoice}>
-        +Add Another Answer
+        +Add Another Blank
       </Button>
     </div>
   );

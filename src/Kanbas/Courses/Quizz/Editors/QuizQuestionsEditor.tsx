@@ -39,6 +39,8 @@ export default function QuizQuestionsEditor() {
 
   const [questionPoint, setQuestionPoint] = useState(10);
 
+  const [editingQuestionNumber, setEditingQuestionNumber] = useState<number | null>(null);
+
   const tfDefault = { text: "", answer: true, point: 0 };
   const mcDefault = { text: "", choices: [], answer: "", point: 0 };
   const fitbDefault = { text: "", blanks: [], answer: [], point: 0 };
@@ -71,28 +73,36 @@ export default function QuizQuestionsEditor() {
   }, []);
 
   const handleAddQuestion = () => {
+    setEditingQuestionNumber(null);
+    setQuestionPoint(10);
+    setSelectedType(null);
+    setTfContent({ ...tfDefault });
+    setMcContent({ ...mcDefault });
+    setFitbContent({ ...fitbDefault });
     setShowTypeModal(true);
   };
 
-  const handleUpdate = (question: QuizQuestion) => {
-    // Update local state with selected question content
-    setSelectedType(question.type);
-    if (question.type === "TRUEFALSE") {
-      setTfContent(question.content);
-    } else if (question.type === "MULTIPLECHOICE") {
-      setMcContent(question.content);
-    } else {
-      setFitbContent(question.content);
-    }
-
-    // Update local state with selected question point
-    setQuestionPoint(question.content.point);
-
-    setShowConfigModal(true);
-  }
-
   const handleDelete = (question: QuizQuestion) => {
     setQuestions(questions.filter((q) => q._id !== question._id));
+  };
+
+  const handleEdit = (questionNumber: number) => {
+    setEditingQuestionNumber(questionNumber);
+    const thisQuestion = questions[questionNumber];
+    setQuestionPoint(thisQuestion.content.point);
+    setSelectedType(thisQuestion.type);
+    switch (thisQuestion.type) {
+      case "TRUEFALSE":
+        setTfContent(thisQuestion.content);
+        break;
+      case "MULTIPLECHOICE":
+        setMcContent(thisQuestion.content);
+        break;
+      case "FILLINTHEBLANK":
+        setFitbContent(thisQuestion.content);
+        break;
+    }
+    setShowTypeModal(true);
   };
 
   const handleTypeSelect = (type: string) => {
@@ -134,7 +144,14 @@ export default function QuizQuestionsEditor() {
       };
     }
 
-    setQuestions([...questions, newQuestion]);
+    if (editingQuestionNumber !== null) {
+      const newQuestions = [...questions];
+      newQuestion._id = questions[editingQuestionNumber]._id;
+      newQuestions[editingQuestionNumber] = newQuestion;
+      setQuestions([...newQuestions]);
+    } else {
+      setQuestions([...questions, newQuestion]);
+    }
     resetQuestions();
     alert(`Adding new question: \n${JSON.stringify(newQuestion)}`)
     setShowConfigModal(false);
@@ -199,6 +216,7 @@ export default function QuizQuestionsEditor() {
                     isDisabled={true}
                   />
                   <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                    <button className="btn btn-primary" onClick={() => handleEdit(n)}>Edit Question {n + 1}</button>
                     <button className="btn btn-danger" onClick={() => handleDelete(q)}>Delete Question {n + 1}</button>
                   </div>
                   <br />
@@ -244,7 +262,7 @@ export default function QuizQuestionsEditor() {
           <br></br>
           <br></br>
           <p>Choose a Question type:</p>
-          <select className="form-control" onChange={(e) => setSelectedType(e.target.value)} defaultValue="">
+          <select className="form-control" onChange={(e) => setSelectedType(e.target.value)} defaultValue={selectedType || ""}>
             <option value="" disabled>Select type</option>
             <option value="MULTIPLECHOICE">Multiple Choice</option>
             <option value="TRUEFALSE">True/False</option>

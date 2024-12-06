@@ -27,7 +27,7 @@ export declare type MultipleChoiceQuestionContent = {
   export declare type FillInTheBlankQuestionContent = {
     text: string;
     blanks: string[];
-    answer: string[];
+    answer: string[][];
     point: number;
   };
   

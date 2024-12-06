@@ -3,9 +3,10 @@ import { FaRegEdit } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import ReactDOM from "react-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { deleteQuiz, unPublishQuiz, publishQuiz } from "./reducer";
 import * as quizClient from "./client";
+import { setAttempt } from "./Attempt/your_attempt_reducer";
 
 interface QuizItemProps {
   quiz: any;
@@ -13,7 +14,7 @@ interface QuizItemProps {
 }
 
 export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
-  const { cid } = useParams();
+  const { cid,qid } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
@@ -21,6 +22,22 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [isPublished, setIsPublished] = useState(quiz.publish);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const { attempt } = useSelector((state: any) => state.attemptReducer);
+
+  const fetchAttempt = async () => {
+    if (qid == null) return;
+    try {
+      let response = await quizClient.getLatestAttempt(qid || "", currentUser._id);
+      console.log("fetch attempt", response);
+      dispatch(setAttempt(response)); // the response is now the attempt
+    } catch (error) {
+      console.error("Failed to fetch or start attempt in item prop");
+    }
+  };
+
+  useEffect(() => {
+    fetchAttempt();
+  }, []);
 
   const toggleMenu = (event: React.MouseEvent) => {
     const { bottom, left } = event.currentTarget.getBoundingClientRect();
@@ -36,6 +53,8 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
     await quizClient.deleteQuizz(quiz._id);
     dispatch(deleteQuiz(quiz._id));
   };
+
+  
 
   const handlePublishToggle = async () => {
     setIsPublished(!isPublished);
@@ -83,9 +102,9 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
             <span className="me-2">|</span>
             <span className="me-2">{quiz.questions.length} questions</span>
           </span>
-          {currentUser?.role === "STUDENT" && quiz.score != null && (
+          {currentUser?.role === "STUDENT" && attempt.score != null && (
             <span className="d-block mt-1">
-              <strong>Last Score:</strong> {quiz.score} pts
+              <strong>Last Score:</strong> {attempt.score} pts
             </span>
           )}
         </div>

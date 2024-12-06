@@ -30,17 +30,21 @@ export default function TrueFalse({
           name={`TF#${questionIndex}`}
           type="radio"
           value="true"
-          checked={
-            attempt.answers[questionIndex] === true
-          }
+          checked={attempt.answers[questionIndex] === true}
           onChange={(e) => {
-            if (e.target.checked) {
-              const answer = true;
-              dispatch(setAnswer({ questionIndex, answer }));
+            if (attempt.answers[questionIndex] !== true && e.target.checked) {
+              dispatch(setAnswer({ questionIndex, answer: true }));
               if (handleAnswerChange) {
-                handleAnswerChange(questionIndex, answer); // Call if exists
+                handleAnswerChange(questionIndex, true); // Call if exists
               }
             }
+            // if (e.target.checked) {
+            //   const answer = true;
+            //   dispatch(setAnswer({ questionIndex, answer }));
+            //   if (handleAnswerChange) {
+            //     handleAnswerChange(questionIndex, answer); // Call if exists
+            //   }
+            // }
           }}
           disabled={isDisabled}
         />
@@ -52,13 +56,17 @@ export default function TrueFalse({
           name={`TF#${questionIndex}`}
           type="radio"
           value="false"
-          checked={
-            attempt.answers[questionIndex] === false
-          }
+          checked={attempt.answers[questionIndex] === false}
           onChange={(e) => {
-            if (attempt[questionIndex] !== !e.target.checked) {
-              dispatch(setAnswer({ questionIndex, answer: !e.target.checked }));
+            if (attempt.answers[questionIndex] !== false && e.target.checked) {
+              dispatch(setAnswer({ questionIndex, answer: false }));
+              if (handleAnswerChange) {
+                handleAnswerChange(questionIndex, false); // Call if exists
+              }
             }
+            // if (attempt[questionIndex] !== !e.target.checked) {
+            //   dispatch(setAnswer({ questionIndex, answer: !e.target.checked }));
+            // }
           }}
           disabled={isDisabled}
         />

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setAnswer } from "../Attempt/your_attempt_reducer";
-import { isDisabled } from "@testing-library/user-event/dist/utils";
 
 export default function FillInTheBlank({
   questionIndex,
