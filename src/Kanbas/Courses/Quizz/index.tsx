@@ -1,10 +1,11 @@
 import { BsGripVertical, BsPlus, BsSearch } from "react-icons/bs";
-import { useNavigate, useParams } from "react-router";
+import { useInRouterContext, useNavigate, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import QuizItem from "./QuizItem";
 
 import * as courseClient from "../client";
-import { useEffect } from "react";
+import * as quizClient from "./client";
+import { useEffect, useState } from "react";
 import {setQuiz}  from "./reducer";
 export default function Quizzes() {
   const { cid } = useParams();
@@ -17,9 +18,24 @@ export default function Quizzes() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
   const isFaculty = currentUser?.role === "FACULTY";
 
+  const [userScores, setUserScores] = useState({}); // map of qid -> score
+
   const fetchQuiz = async () => {
     const quiz = await courseClient.findQuizForCourse(cid as string);
     dispatch(setQuiz(quiz));
+
+    // alert(currentUser._id)
+    // alert(JSON.stringify(quiz))
+    await Promise.all(quiz.map((q:any) => 
+      quizClient.getLatestAttempt(q._id, currentUser._id).then((att) => { return {qu: q._id, attempt: att}; })
+    )).then((atts:{qu: string, attempt: any}[]) => {
+      const newUserScores:any = {};
+      atts.forEach((quizAtt) => {
+        newUserScores[quizAtt.qu] = quizAtt.attempt.score;
+      })
+      // alert(JSON.stringify(newUserScores));
+      setUserScores(newUserScores);
+    });
   };
   useEffect(() => {
     fetchQuiz();
@@ -62,9 +78,9 @@ export default function Quizzes() {
           <ul className="wd-quizzes-list list-group rounded-0">
 
             {filteredQuizzes.filter((quiz: any) => quiz.publish || isFaculty)
-            .map((quiz: any) => (
-              <QuizItem key={quiz._id} quiz={quiz} isFaculty={isFaculty}/>
-            ))}
+            .map((quiz: any) => {
+              return <QuizItem key={quiz._id} quiz={quiz} isFaculty={isFaculty} scores={userScores}/>
+            })}
           </ul>
         </li>
       </ul>

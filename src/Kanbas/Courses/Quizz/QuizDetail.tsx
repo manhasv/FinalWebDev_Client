@@ -4,6 +4,15 @@ import { setAttempt } from "./Attempt/your_attempt_reducer";
 import * as client from "./client";
 import { useEffect, useState } from "react";
 
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  // Use UTC
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${month}/${day}/${year}`;
+}
+
 export default function QuizDetails() {
   const { qid } = useParams();
   const navigate = useNavigate();
@@ -208,7 +217,7 @@ export default function QuizDetails() {
             <strong>One Question at a Time:</strong>
           </div>
           <div className="col-8 text-start">
-            {quiz.oneQuestionAtATime ? "Yes" : "No"}
+            {quiz.oneQuestionPerPage ? "Yes" : "No"}
           </div>
         </div>
         <div className="row mb-3">
@@ -224,7 +233,7 @@ export default function QuizDetails() {
             <strong>Lock Questions After Answering:</strong>
           </div>
           <div className="col-8 text-start">
-            {quiz.lockQuestions ? "Yes" : "No"}
+            {quiz.lockQuestionsAfterAnswering ? "Yes" : "No"}
           </div>
         </div>
       </div>
@@ -240,9 +249,9 @@ export default function QuizDetails() {
         </thead>
         <tbody>
           <tr>
-            <td className="text-center">{quiz.dueDate || "N/A"}</td>
-            <td className="text-center">{quiz.availableDate || "N/A"}</td>
-            <td className="text-center">{quiz.untilDate || "N/A"}</td>
+            <td className="text-center">{formatDate(quiz.dueDate) || "N/A"}</td>
+            <td className="text-center">{formatDate(quiz.availableDate) || "N/A"}</td>
+            <td className="text-center">{formatDate(quiz.untilDate) || "N/A"}</td>
           </tr>
         </tbody>
       </table>

@@ -11,10 +11,19 @@ import { setAttempt } from "./Attempt/your_attempt_reducer";
 interface QuizItemProps {
   quiz: any;
   isFaculty: boolean;
+  scores: any; // map of quiz id to score for user
+}
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  // Use UTC
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  return `${month}/${day}/${year}`;
 }
 
-export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
-  const { cid,qid } = useParams();
+export default function QuizItem({ quiz, isFaculty, scores }: QuizItemProps) {
+  const { cid } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state: any) => state.accountReducer);
@@ -22,22 +31,6 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [isPublished, setIsPublished] = useState(quiz.publish);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
-  const { attempt } = useSelector((state: any) => state.attemptReducer);
-
-  const fetchAttempt = async () => {
-    if (qid == null) return;
-    try {
-      let response = await quizClient.getLatestAttempt(qid || "", currentUser._id);
-      console.log("fetch attempt", response);
-      dispatch(setAttempt(response)); // the response is now the attempt
-    } catch (error) {
-      console.error("Failed to fetch or start attempt in item prop");
-    }
-  };
-
-  useEffect(() => {
-    fetchAttempt();
-  }, []);
 
   const toggleMenu = (event: React.MouseEvent) => {
     const { bottom, left } = event.currentTarget.getBoundingClientRect();
@@ -54,7 +47,7 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
     dispatch(deleteQuiz(quiz._id));
   };
 
-  
+
 
   const handlePublishToggle = async () => {
     setIsPublished(!isPublished);
@@ -70,12 +63,15 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
     console.log("Copy Quiz to another course");
   };
 
-  const quizStatus =
-    new Date() < new Date(quiz.availableDate)
-      ? `Not available until ${quiz.availableDate}`
-      : new Date() <= new Date(quiz.dueDate)
+  const quizStatusText = new Date() < new Date(quiz.availableDate)
+    ? "Not available until"
+    : new Date() <= new Date(quiz.dueDate)
       ? "Available"
       : "Closed";
+
+  const quizStatusColor = new Date() < new Date(quiz.availableDate) || new Date() > new Date(quiz.dueDate)
+    ? "text-danger" // Red for "Not available until" and "Closed"
+    : "text-dark";  // Black for "Available"
 
   return (
     <li className="wd-quiz-item list-group-item p-3 ps-1 d-flex align-items-center">
@@ -91,20 +87,24 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
         <div>
           <span className="d-block">
             <span className="me-2">Status:</span>
-            <span className="text-danger me-2">{quizStatus}</span>
+            <span className={`${quizStatusColor} me-2`}>{quizStatusText}</span>
+            {quizStatusText === "Not available until" && (
+              <span className="text-dark"> {formatDate(quiz.availableDate)}</span>
+            )}
+            {quizStatusText === "Available"}
             <span className="me-2">|</span>
             <strong className="me-2">Due</strong>
             <span className="me-2">
-              {quiz.dueDate ? quiz.dueDate : "N/A"} at 11:59pm
+              {quiz.dueDate ? formatDate(quiz.dueDate) : "N/A"} at 11:59pm
             </span>
             <span className="me-2">|</span>
             <span className="me-2">{quiz.points ?? 0} pts</span>
             <span className="me-2">|</span>
             <span className="me-2">{quiz.questions.length} questions</span>
           </span>
-          {currentUser?.role === "STUDENT" && attempt.score != null && (
+          {currentUser?.role === "STUDENT" && scores[quiz._id] && (
             <span className="d-block mt-1">
-              <strong>Last Score:</strong> {attempt.score} pts
+              <strong>Last Score:</strong> {scores[quiz._id]}/{quiz.points} pts
             </span>
           )}
         </div>
@@ -142,13 +142,13 @@ export default function QuizItem({ quiz, isFaculty }: QuizItemProps) {
 
 // QuizContextMenu component using React Portal
 function QuizContextMenu({ position, onClose, onEdit, onDelete, onPublishToggle, isPublished, onCopy }: {
-    position: { top: number, left: number },
-    onClose: () => void,
-    onEdit: () => void,
-    onDelete: () => void,
-    onPublishToggle: () => void,
-    isPublished: boolean,
-    onCopy: () => void
+  position: { top: number, left: number },
+  onClose: () => void,
+  onEdit: () => void,
+  onDelete: () => void,
+  onPublishToggle: () => void,
+  isPublished: boolean,
+  onCopy: () => void
 }) {
   return ReactDOM.createPortal(
     <div
