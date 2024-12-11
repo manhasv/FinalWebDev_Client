@@ -33,15 +33,15 @@ export default function Profile() {
             onChange={(e) => setProfile({ ...profile, username: e.target.value })} />
           <input defaultValue={profile.password} id="wd-password" className="form-control mb-2"
             onChange={(e) => setProfile({ ...profile, password: e.target.value })} />
-          <input defaultValue={profile.firstName} id="wd-firstname" className="form-control mb-2"
+          <input defaultValue={profile.firstName} title="Enter your first name" id="wd-firstname" className="form-control mb-2"
             onChange={(e) => setProfile({ ...profile, firstName: e.target.value })} />
-          <input defaultValue={profile.lastName} id="wd-lastname" className="form-control mb-2"
+          <input defaultValue={profile.lastName} title="Enter your last name" id="wd-lastname" className="form-control mb-2"
             onChange={(e) => setProfile({ ...profile, lastName: e.target.value })} />
-          <input defaultValue={profile.dob} id="wd-dob" className="form-control mb-2"
+          <input defaultValue={profile.dob} title="Enter your date of birth" id="wd-dob" className="form-control mb-2"
             onChange={(e) => setProfile({ ...profile, dob: e.target.value })} type="date" />
-          <input defaultValue={profile.email} id="wd-email" className="form-control mb-2"
+          <input defaultValue={profile.email} title="Enter your email" id="wd-email" className="form-control mb-2"
             onChange={(e) => setProfile({ ...profile, email: e.target.value })} />
-          <select onChange={(e) => setProfile({ ...profile, role: e.target.value })}
+          <select title="Change user role" onChange={(e) => setProfile({ ...profile, role: e.target.value })}
             className="form-control mb-2" id="wd-role">
             <option value="USER">User</option>            <option value="ADMIN">Admin</option>
             <option value="FACULTY">Faculty</option>      <option value="STUDENT">Student</option>

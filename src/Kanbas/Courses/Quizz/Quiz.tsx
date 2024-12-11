@@ -80,7 +80,7 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
 
   return (
     <div id="wd-quiz">
-      {JSON.stringify(attempt)}
+      
       <br />
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h2>{thisQuiz.title}</h2>
@@ -96,7 +96,7 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
         </div>
       </div>
 
-      <ul className="list-group">
+      {thisQuiz.questions.length > 0 && <ul className="list-group">
         {(thisQuiz.oneQuestionPerPage
           ? [thisQuiz.questions[questionNum - 1]]
           : thisQuiz.questions
@@ -143,7 +143,7 @@ export default function Quiz({ isPreview }: { isPreview: boolean }) {
             </li>
           );
         })}
-      </ul>
+      </ul>}
 
       {thisQuiz.oneQuestionPerPage && (
         <div className="p-2">

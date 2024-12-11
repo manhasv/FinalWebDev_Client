@@ -153,7 +153,6 @@ export default function QuizQuestionsEditor() {
       setQuestions([...questions, newQuestion]);
     }
     resetQuestions();
-    alert(`Adding new question: \n${JSON.stringify(newQuestion)}`)
     setShowConfigModal(false);
   };
 
@@ -171,7 +170,6 @@ export default function QuizQuestionsEditor() {
 
   const fetchQuiz = async () => {
     const newquiz = await coursesClient.findQuizForCourse(cid as string);
-    alert(`populating reducer ${JSON.stringify(quiz)}`);
     dispatch(setQuiz(newquiz));
     setQuestions(newquiz.find((q: any) => q._id == qid)?.questions || []);
   };

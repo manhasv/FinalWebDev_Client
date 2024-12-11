@@ -98,7 +98,7 @@ export default function QuizDetails() {
   return (
     <div className="container mt-4 text-center">
       {attempt == undefined && "UNDEFINED HEY"}
-      {JSON.stringify(attempt)}
+      
       {/* Centered Buttons and Divider */}
       <div className="d-flex justify-content-center mb-2">
         {isStudent && (

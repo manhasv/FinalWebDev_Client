@@ -23,8 +23,7 @@ export default function TrueFalse({
     <div>
       {question.content.text}
       <br />
-      {/* {JSON.stringify(attempt.answers[questionIndex])}
-      <br /> */}
+      
       <label>
         <input
           name={`TF#${questionIndex}`}

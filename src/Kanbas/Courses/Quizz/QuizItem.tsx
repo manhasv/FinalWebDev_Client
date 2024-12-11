@@ -63,11 +63,19 @@ export default function QuizItem({ quiz, isFaculty, scores }: QuizItemProps) {
     console.log("Copy Quiz to another course");
   };
 
-  const quizStatusText = new Date() < new Date(quiz.availableDate)
-    ? "Not available until"
-    : new Date() <= new Date(quiz.dueDate)
-      ? "Available"
-      : "Closed";
+  const quizStatusText = () => {
+    const today = new Date();
+    if (today < new Date(quiz.availableDate)) {
+      // alert(`available at: ${JSON.stringify(new Date(quiz.availableDate))}`)
+      return `Not available until ${quiz.availableDate.split("T")[0]}`;
+    }
+    if (today <= new Date(quiz.dueDate)) {
+      // alert(`available at: ${JSON.stringify(new Date(quiz.availableDate))}`);
+      return "Available";
+    } else {
+      return "Closed";
+    }
+  }
 
   const quizStatusColor = new Date() < new Date(quiz.availableDate) || new Date() > new Date(quiz.dueDate)
     ? "text-danger" // Red for "Not available until" and "Closed"
@@ -87,11 +95,11 @@ export default function QuizItem({ quiz, isFaculty, scores }: QuizItemProps) {
         <div>
           <span className="d-block">
             <span className="me-2">Status:</span>
-            <span className={`${quizStatusColor} me-2`}>{quizStatusText}</span>
-            {quizStatusText === "Not available until" && (
+            <span className={`${quizStatusColor} me-2`}>{quizStatusText()}</span>
+            {/* {quizStatusText === "Not available until" && (
               <span className="text-dark"> {formatDate(quiz.availableDate)}</span>
             )}
-            {quizStatusText === "Available"}
+            {quizStatusText === "Available"} */}
             <span className="me-2">|</span>
             <strong className="me-2">Due</strong>
             <span className="me-2">
@@ -102,11 +110,11 @@ export default function QuizItem({ quiz, isFaculty, scores }: QuizItemProps) {
             <span className="me-2">|</span>
             <span className="me-2">{quiz.questions.length} questions</span>
           </span>
-          {currentUser?.role === "STUDENT" && scores[quiz._id] && (
+          {(currentUser?.role === "STUDENT" && scores[quiz._id] !== undefined) ? (
             <span className="d-block mt-1">
               <strong>Last Score:</strong> {scores[quiz._id]}/{quiz.points} pts
             </span>
-          )}
+          ) : <></>}
         </div>
       </div>
 

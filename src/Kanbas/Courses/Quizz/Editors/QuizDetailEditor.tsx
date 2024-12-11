@@ -46,7 +46,7 @@ export default function QuizEditor() {
 
   const handleSave = async (publish: boolean) => {
     const toSave = {...quiz, publish: publish}
-    alert(`saving quiz ${JSON.stringify(toSave)}`);
+    //alert(`saving quiz ${JSON.stringify(toSave)}`);
     if (!qid || qid === "New") {
       await coursesClient.createQuizzForCourse(cid as string, toSave);
       dispatch(addQuiz({ ...toSave, course: cid }));
