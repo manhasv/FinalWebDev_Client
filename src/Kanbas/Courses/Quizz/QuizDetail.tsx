@@ -97,33 +97,55 @@ export default function QuizDetails() {
 
   return (
     <div className="container mt-4 text-center">
-      {attempt == undefined && "UNDEFINED HEY"}
-      
-      {/* Centered Buttons and Divider */}
       <div className="d-flex justify-content-center mb-2">
         {isStudent && (
-          <>
-            {quiz.multipleAttempts && attemptsSoFar >= 0 && <span className="px-2">{`${attemptsSoFar} attempts so far`}</span>}
-            {attempt && attempt.submitted && quiz.multipleAttempts && attemptsSoFar < quiz.allowedAttempts && (
-              <button className="btn btn-danger me-2" onClick={(e) => {
-                handleTakeQuiz(true); // start new attempt
-              }}>Start New Attempt</button>
+          <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+            {quiz.multipleAttempts && attemptsSoFar >= 0 && (
+              <div className="mb-3">
+                <div className="text-muted small">
+                  <span>
+                    <strong>{attemptsSoFar}</strong> attempts so far.
+                  </span>
+                  {quiz.allowedAttempts > 0 && (
+                    <span>
+                      You are allowed up to <strong>{quiz.allowedAttempts}</strong> attempts.
+                    </span>
+                  )}
+                </div>
+              </div>
             )}
-            <button
-              className="btn btn-danger me-2"
-              onClick={(e) => {
-                handleTakeQuiz();
-              }}
-            >
-              {startButtonText()}
-            </button>
-          </>
+
+            <div>
+              {attempt && attempt.submitted && quiz.multipleAttempts && attemptsSoFar < quiz.allowedAttempts && (
+                <div className="mb-2">
+                  <button
+                    className="btn btn-danger"
+                    onClick={(e) => {
+                      handleTakeQuiz(true); // start new attempt
+                    }}
+                  >
+                    Start New Attempt
+                  </button>
+                </div>
+              )}
+              <div>
+                <button
+                  className="btn btn-danger"
+                  onClick={(e) => {
+                    handleTakeQuiz();
+                  }}
+                >
+                  {startButtonText()}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
         {isFaculty && (
           <>
             <button className="btn btn-primary me-2" onClick={(e) => {
-                handlePreview(false); // start new attempt
-              }}>
+              handlePreview(false); // start new attempt
+            }}>
               {attempt && attempt.submitted ? "View Last Preview Attempt" : "Preview"}
             </button>
             {attempt && attempt.submitted && (
@@ -141,10 +163,9 @@ export default function QuizDetails() {
       </div>
       <hr />
 
-      {/* Title below the divider */}
+      {/* Title */}
       <h2 className="quiz-title text-start">{quiz.title}</h2>
 
-      {/* Single-column, aligned Quiz Details */}
       <div className="quiz-details mt-4 mx-auto" style={{ maxWidth: "600px" }}>
         <div className="row mb-3">
           <div className="col-4 text-end">

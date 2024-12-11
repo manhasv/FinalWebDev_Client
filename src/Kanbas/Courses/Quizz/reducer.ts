@@ -15,11 +15,14 @@ const quizzesSlice = createSlice({
     addQuiz: (state, { payload: quiz }) => {
 
       const newQuiz = {
-        _id: new Date().getTime().toString(),
+        // _id: new Date().getTime().toString(),
         ...quiz,
         questions: quiz.questions || []
       };
-      state.quizzes.push(newQuiz);
+      if (!state.quizzes.some((q:any) => q._id === newQuiz._id)) {
+        state.quizzes.push(newQuiz);
+      }
+      // alert(JSON.stringify(state.quizzes));
     },
     deleteQuiz: (state, { payload: quizId }) => {
       state.quizzes = state.quizzes.filter((q:any) => q._id !== quizId);

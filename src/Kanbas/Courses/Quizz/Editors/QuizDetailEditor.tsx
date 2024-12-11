@@ -16,6 +16,7 @@ export default function QuizEditor() {
   const quizzes = useSelector((state: any) => state.quizzesReducer.quizzes);
 
   const defaultQuizData = {
+    _id: "New",
     title: "",
     description: "",
     points: 0,
@@ -68,7 +69,7 @@ export default function QuizEditor() {
 
   const fetchQuiz = async () => {
     const quiz = await coursesClient.findQuizForCourse(cid as string);
-    alert('populating reducer')
+    // alert('populating reducer')
     dispatch(setQuiz(quiz));
     setLocalQuiz(quiz.find((q: any) => q._id === qid) || {...defaultQuizData});
   };
@@ -85,7 +86,9 @@ export default function QuizEditor() {
       <div className="d-flex mb-4">
         <div
           className="tab"
-          onClick={() => navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Edit`)}
+          onClick={() => { 
+            navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid ?? "New"}/Edit`); 
+          }}
           style={{
             cursor: "pointer",
             padding: "10px",
@@ -97,7 +100,13 @@ export default function QuizEditor() {
         </div>
         <div
           className="tab"
-          onClick={() => navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid}/Questions`)}
+          onClick={() => { 
+            if (qid === "New") { // needed to initialize quiz for editing properly
+              dispatch(addQuiz(quiz));
+            }
+            dispatch(updateQuiz(quiz));
+            navigate(`/Kanbas/Courses/${cid}/Quizzes/${qid ?? "New"}/Questions`) 
+          }}
           style={{
             cursor: "pointer",
             padding: "10px",
@@ -446,7 +455,7 @@ export default function QuizEditor() {
                     type="date"
                     id="quiz-available-date"
                     className="form-control"
-                    value={quiz.availableDate.split("T")[0]}
+                    value={(quiz.availableDate ?? "").split("T")[0]}
                     onChange={(e) => handleChange("availableDate", e.target.value)}
                   />
                 </div>
@@ -468,7 +477,7 @@ export default function QuizEditor() {
                     type="date"
                     id="quiz-due-date"
                     className="form-control"
-                    value={quiz.dueDate.split("T")[0]}
+                    value={(quiz.dueDate ?? "").split("T")[0]}
                     onChange={(e) => handleChange("dueDate", e.target.value)}
                   />
                 </div>
@@ -490,7 +499,7 @@ export default function QuizEditor() {
                     type="date"
                     id="quiz-until-date"
                     className="form-control"
-                    value={quiz.untilDate.split("T")[0]}
+                    value={(quiz.untilDate ?? "").split("T")[0]}
                     onChange={(e) => handleChange("untilDate", e.target.value)}
                   />
                 </div>
